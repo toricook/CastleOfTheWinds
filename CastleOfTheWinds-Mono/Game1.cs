@@ -12,21 +12,10 @@ namespace CastleOfTheWinds
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        // Game grid singleton
-        private Grid _grid;
-
-        // Custom rendering
-        private GridRenderer _gridRenderer;
-
-        // Tilemap stuff
         private Tilemap _tilemap;
         private TilemapRenderer _tilemapRenderer;
 
-        private List<Rectangle> _textureStore;
-        private Texture2D _textureAtlas;
-
-        // camera
-        private Vector2 _camera;
+        private Vector2 _viewport;
 
         public Game1()
         {
@@ -35,9 +24,8 @@ namespace CastleOfTheWinds
             IsMouseVisible = true;
 
 
-            _tilemap = Tilemap.FromCsv("../../../Data/tiled_test_graphics.csv");
-
-            _camera = Vector2.Zero;
+            _tilemap = Tilemap.FromCsv("../../../Data/town.csv");
+            _viewport = Vector2.Zero;
         }
 
         protected override void Initialize()
@@ -45,8 +33,10 @@ namespace CastleOfTheWinds
             // TODO: Add your initialization logic here
 
             base.Initialize();
-            _grid = new Grid(50, 50, 32);
-            _gridRenderer = new GridRenderer(_grid, GraphicsDevice);
+
+            _graphics.PreferredBackBufferWidth = 640;
+            _graphics.PreferredBackBufferHeight = 480;
+
         }
 
         protected override void LoadContent()
@@ -54,11 +44,12 @@ namespace CastleOfTheWinds
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            FileStream fileStream = new FileStream("../../../Content/cotw-textureatlas.png", FileMode.Open);
-            _textureAtlas = Texture2D.FromStream(GraphicsDevice, fileStream);
+            FileStream fileStream = new FileStream("../../../Content/cotw-tiles-proj.png", FileMode.Open);
+            var textures = Texture2D.FromStream(GraphicsDevice, fileStream);
             fileStream.Dispose();
 
-            _tilemapRenderer = new TilemapRenderer(_textureAtlas, 4, 32, 32);
+            _tilemapRenderer = new TilemapRenderer(textures, 3, 32, 32);
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -69,37 +60,35 @@ namespace CastleOfTheWinds
             // TODO: Add your update logic here
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
-                _camera.X -= 5;
+                _viewport.X -= 5;
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                _camera.Y += 5;
+                _viewport.Y += 5;
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
-                _camera.X += 5;
+                _viewport.X += 5;
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
-                _camera.Y -= 5;
+                _viewport.Y -= 5;
             }
-
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
-            _gridRenderer.Draw(_spriteBatch);
 
-            _tilemapRenderer.Render(_spriteBatch, _tilemap, _camera);
+            _tilemapRenderer.Render(_spriteBatch, _tilemap, _viewport);
 
             _spriteBatch.End();
 
@@ -108,7 +97,6 @@ namespace CastleOfTheWinds
 
         protected override void UnloadContent()
         {
-            _gridRenderer?.Dispose(); // Only dispose when cleaning up
             base.UnloadContent();
         }
     }
