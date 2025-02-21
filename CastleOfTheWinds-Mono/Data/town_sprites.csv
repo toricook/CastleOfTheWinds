@@ -1,0 +1,15 @@
+town-sprites,0,0,96,80,448,490,right-house
+town-sprites,96,0,96,80,192,490,left-house
+town-sprites,0,0,96,80,448,330,right-house
+town-sprites,96,0,96,80,128,206,left-house
+town-sprites,192,0,112,140,320,640,temple
+town-sprites,304,0,64,64,256,354,small-house
+town-sprites,0,0,96,80,512,144,right-house
+town-sprites,368,0,22,29,416,640,sign
+town-sprites,368,0,22,29,288,480,sign
+town-sprites,368,0,22,29,416,480,sign
+town-sprites,368,0,22,29,320,384,sign
+town-sprites,368,0,22,29,416,320,sign
+cotwsprites,192,96,32,32,352,512,well
+cotwsprites,256,96,32,32,160,174,farm
+cotwsprites,256,96,32,32,544,112,farm

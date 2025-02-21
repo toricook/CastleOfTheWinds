@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace CastleOfTheWinds
 {
@@ -12,10 +13,14 @@ namespace CastleOfTheWinds
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Tilemap _tilemap;
         private TilemapRenderer _tilemapRenderer;
 
         private Vector2 _viewport;
+
+        private Dictionary<string, Texture2D> _spriteSheets = new();
+
+        Scene _activeScene;
+        RenderingSystem _renderingSystem;
 
         public Game1()
         {
@@ -23,10 +28,26 @@ namespace CastleOfTheWinds
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-
-            _tilemap = Tilemap.FromCsv("../../../Data/town.csv");
-            _viewport = Vector2.Zero;
+            _activeScene = new Scene("../../../Data/town.csv", "../../../Data/town_sprites.csv");
+            
         }
+
+        public void CreateSprites(string filepath)
+        {
+            StreamReader sr = new StreamReader(filepath);
+            string line;
+
+            while ((line = sr.ReadLine()) != null)
+            {
+                string[] data = line.Split(',');
+                var texture = _spriteSheets[data[0]];
+                var source = new Rectangle(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]));
+                var dest = new Rectangle(int.Parse(data[5]), int.Parse(data[6]), source.Width, source.Height);
+                new Sprite(texture, source, dest);
+
+            }
+        }
+    
 
         protected override void Initialize()
         {
@@ -43,12 +64,23 @@ namespace CastleOfTheWinds
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
-            FileStream fileStream = new FileStream("../../../Content/cotw-tiles-proj.png", FileMode.Open);
-            var textures = Texture2D.FromStream(GraphicsDevice, fileStream);
-            fileStream.Dispose();
+            // Create Tilemap Renderer
+            var tileTextures = Content.Load<Texture2D>("cotw-tiles-proj");
+            _tilemapRenderer = new TilemapRenderer(tileTextures, 3, 32, 32);
 
-            _tilemapRenderer = new TilemapRenderer(textures, 3, 32, 32);
+            // Load sprite sheets
+            var contentFiles = Directory.EnumerateFiles("../../../Content/Spritesheets", "*png");
+            foreach ( var contentFile in contentFiles)
+            {
+                var name = Path.GetFileNameWithoutExtension(contentFile);
+                _spriteSheets[name] = Content.Load<Texture2D>(Path.Combine("Spritesheets", name));
+            }
+
+            // Load active scene
+            _activeScene.Load(_spriteSheets);
+
+            // Create systems
+            _renderingSystem = new RenderingSystem();
 
         }
 
@@ -85,10 +117,13 @@ namespace CastleOfTheWinds
         {
             GraphicsDevice.Clear(Color.White);
 
-            // TODO: Add your drawing code here
             _spriteBatch.Begin();
 
-            _tilemapRenderer.Render(_spriteBatch, _tilemap, _viewport);
+            // Render tilemap -- TODO move to system?
+            _tilemapRenderer.Render(_spriteBatch, _activeScene.Tilemap, _viewport);
+
+            // System calls
+            _renderingSystem.Draw(_spriteBatch, _viewport);
 
             _spriteBatch.End();
 
