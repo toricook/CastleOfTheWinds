@@ -36,8 +36,8 @@ namespace CastleOfTheWinds
                 string[] data = line.Split(',');
                 var texture = spriteSheets[data[0]];
                 var source = new Rectangle(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]));
-                var dest = new Rectangle(int.Parse(data[5]), int.Parse(data[6]), source.Width, source.Height);
-                Sprites.Add(new Sprite(texture, source, dest));
+                var pos = new Vector2(int.Parse(data[5]), int.Parse(data[6]));
+                Sprites.Add(new Sprite(texture, source, pos));
             }
         }
 

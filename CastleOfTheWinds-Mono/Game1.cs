@@ -21,6 +21,8 @@ namespace CastleOfTheWinds
 
         Scene _activeScene;
         RenderingSystem _renderingSystem;
+        MovementSystem _movementSystem;
+        Player _player;
 
         public Game1()
         {
@@ -31,23 +33,6 @@ namespace CastleOfTheWinds
             _activeScene = new Scene("../../../Data/town.csv", "../../../Data/town_sprites.csv");
             
         }
-
-        public void CreateSprites(string filepath)
-        {
-            StreamReader sr = new StreamReader(filepath);
-            string line;
-
-            while ((line = sr.ReadLine()) != null)
-            {
-                string[] data = line.Split(',');
-                var texture = _spriteSheets[data[0]];
-                var source = new Rectangle(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]));
-                var dest = new Rectangle(int.Parse(data[5]), int.Parse(data[6]), source.Width, source.Height);
-                new Sprite(texture, source, dest);
-
-            }
-        }
-    
 
         protected override void Initialize()
         {
@@ -81,34 +66,23 @@ namespace CastleOfTheWinds
 
             // Create systems
             _renderingSystem = new RenderingSystem();
+            _movementSystem = new MovementSystem();
+
+            // Create player
+            _player = new Player(_spriteSheets["cotwsprites"], new Rectangle(192, 512, 32, 32), new Vector2(320, 240));
 
         }
 
         protected override void Update(GameTime gameTime)
         {
+            // system calls
+            _movementSystem.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            {
-                _viewport.X -= 5;
-            }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
-            {
-                _viewport.Y += 5;
-            }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            {
-                _viewport.X += 5;
-            }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
-            {
-                _viewport.Y -= 5;
-            }
+            // update camera location
+            _viewport = new Vector2(320, 240) - _player.Position;
 
             base.Update(gameTime);
         }
