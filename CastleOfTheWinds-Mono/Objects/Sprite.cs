@@ -13,18 +13,15 @@ namespace CastleOfTheWinds
         Texture2D _texture;
         Rectangle _source;
 
-        Rectangle _destination;
-
-        public Sprite(Texture2D texture, Rectangle source, Rectangle destination) : base()
+        public Sprite(Texture2D texture, Rectangle source, Vector2 initialPosition) : base(initialPosition)
         {
             _texture = texture;
             _source = source;
-            _destination = destination;
         }
 
         public void Render(SpriteBatch spriteBatch, Vector2 viewPort)
         {
-            var dest = new Rectangle(_destination.X + (int)viewPort.X, _destination.Y + (int)viewPort.Y, _destination.Width, _destination.Height);
+            var dest = new Rectangle((int)(Position.X + viewPort.X), (int)(Position.Y + (int)viewPort.Y), _source.Width, _source.Height);
             spriteBatch.Draw(_texture, dest, _source, Color.White);
         }
 
